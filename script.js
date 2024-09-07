@@ -6,6 +6,7 @@ document.getElementById('toolForm').addEventListener('submit', function(event) {
 
 const PASSWORD = "robloxgenbyzane";
 const BASE_URL = "https://www.roblox.com/groups/";
+const CLAIM_URL = "https://www.roblox.com/groups/{}/claim";
 const CHECK_INTERVAL = 300000; // 5 minutes interval
 
 let claimableGroups = [];
@@ -53,16 +54,12 @@ function getRandomGroupIds(numIds) {
 async function getGroupInfo(groupId) {
     let url = `${BASE_URL}${groupId}`;
     try {
-        let response = await fetch('/.netlify/functions/proxy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url, method: 'GET' })
-        });
-        let data = await response.text();
-        if (data.includes("Group not found")) {
+        let response = await fetch(url);
+        let text = await response.text();
+        if (text.includes("Group not found")) {
             return null;
         }
-        if (data.includes("Claim Group")) {
+        if (text.includes("Claim Group")) {
             return true;
         }
         return false;
