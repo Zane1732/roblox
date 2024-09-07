@@ -8,6 +8,7 @@ const PASSWORD = "robloxgenbyzane";
 const BASE_URL = "https://www.roblox.com/groups/";
 const CLAIM_URL = "https://www.roblox.com/groups/{}/claim";
 const CHECK_INTERVAL = 300000; // 5 minutes interval
+const BATCH_SIZE = 100; // Process 100 groups per batch
 
 let claimableGroups = [];
 let claimableUrls = [];
@@ -28,14 +29,11 @@ async function startChecking() {
 
     while (true) {
         let groupIds = getRandomGroupIds(numGroups);
-        for (let groupId of groupIds) {
-            resultDiv.innerHTML += `<p>Checking group ${groupId}...</p>`;
-            const isClaimable = await getGroupInfo(groupId);
-            if (isClaimable) {
-                claimableGroups.push(groupId);
-                claimableUrls.push(`${BASE_URL}${groupId}`);
-                resultDiv.innerHTML += `<p>Group ${groupId} is claimable! <a href="${BASE_URL}${groupId}" target="_blank">View</a></p>`;
-            }
+        let batch = [];
+
+        for (let i = 0; i < numGroups; i += BATCH_SIZE) {
+            batch = groupIds.slice(i, i + BATCH_SIZE);
+            await processBatch(batch);
         }
 
         updateClaimableLinks();
@@ -49,6 +47,18 @@ function getRandomGroupIds(numIds) {
         ids.push(Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000);
     }
     return ids;
+}
+
+async function processBatch(groupIds) {
+    for (let groupId of groupIds) {
+        resultDiv.innerHTML += `<p>Checking group ${groupId}...</p>`;
+        const isClaimable = await getGroupInfo(groupId);
+        if (isClaimable) {
+            claimableGroups.push(groupId);
+            claimableUrls.push(`${BASE_URL}${groupId}`);
+            resultDiv.innerHTML += `<p>Group ${groupId} is claimable! <a href="${BASE_URL}${groupId}" target="_blank">View</a></p>`;
+        }
+    }
 }
 
 async function getGroupInfo(groupId) {
@@ -80,3 +90,4 @@ function updateClaimableLinks() {
         linksDiv.innerHTML = "<p>No claimable groups found.</p>";
     }
 }
+
