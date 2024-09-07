@@ -1,10 +1,16 @@
 // script.js
-document.getElementById('toolForm').addEventListener('submit', async function(event) {
+document.getElementById('toolForm').addEventListener('submit', function(event) {
     event.preventDefault();
+    startChecking();
+});
 
-    const PASSWORD = "robloxgenbyzane";
-    const BASE_URL = "https://www.roblox.com/groups/";
+const PASSWORD = "robloxgenbyzane";
+const BASE_URL = "https://www.roblox.com/groups/";
+const CHECK_INTERVAL = 300000; // 5 minutes interval
 
+let claimableGroups = [];
+
+async function startChecking() {
     const passwordInput = document.getElementById('password').value;
     const numGroups = parseInt(document.getElementById('numGroups').value);
     const resultDiv = document.getElementById('result');
@@ -14,29 +20,22 @@ document.getElementById('toolForm').addEventListener('submit', async function(ev
         return;
     }
 
-    const groupIds = getRandomGroupIds(numGroups);
-    resultDiv.innerHTML = "<p>Checking groups...</p>";
-
-    let claimableGroups = [];
-
-    for (let groupId of groupIds) {
-        resultDiv.innerHTML += `<p>Checking group ${groupId}...</p>`;
-        const isClaimable = await getGroupInfo(groupId);
-        if (isClaimable) {
-            claimableGroups.push(groupId);
-            resultDiv.innerHTML += `<p>Group ${groupId} is claimable!</p>`;
+    resultDiv.innerHTML = "<p>Starting group checks...</p>";
+    while (true) {
+        let groupIds = getRandomGroupIds(numGroups);
+        for (let groupId of groupIds) {
+            resultDiv.innerHTML += `<p>Checking group ${groupId}...</p>`;
+            const isClaimable = await getGroupInfo(groupId);
+            if (isClaimable) {
+                claimableGroups.push(groupId);
+                resultDiv.innerHTML += `<p>Group ${groupId} is claimable!</p>`;
+            }
         }
-    }
 
-    if (claimableGroups.length > 0) {
-        resultDiv.innerHTML += "<h2>Claimable Groups:</h2>";
-        claimableGroups.forEach(groupId => {
-            resultDiv.innerHTML += `<p>${groupId}</p>`;
-        });
-    } else {
-        resultDiv.innerHTML += "<p>No claimable groups found.</p>";
+        saveClaimableGroups();
+        await new Promise(resolve => setTimeout(resolve, CHECK_INTERVAL)); // Wait before next batch
     }
-});
+}
 
 function getRandomGroupIds(numIds) {
     let ids = [];
@@ -62,4 +61,14 @@ async function getGroupInfo(groupId) {
         console.error(`Error checking group ${groupId}:`, error);
         return false;
     }
+}
+
+function saveClaimableGroups() {
+    const blob = new Blob([claimableGroups.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'claimable_groups.txt';
+    a.click();
+    URL.revokeObjectURL(url);
 }
