@@ -3,8 +3,7 @@ body {
     font-family: 'Courier New', Courier, monospace;
     margin: 0;
     padding: 0;
-    background: url('https://www.example.com/hacking-background.jpg') no-repeat center center fixed;
-    background-size: cover;
+    background-color: #000;
     color: #0f0;
 }
 
@@ -12,11 +11,10 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     border: 2px solid #0f0;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-    backdrop-filter: blur(10px);
 }
 
 h1, p {
@@ -57,3 +55,13 @@ button:hover {
 .result, .links {
     margin-top: 20px;
 }
+
+.links a {
+    color: #0f0;
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
