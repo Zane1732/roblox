@@ -48,6 +48,6 @@ button:hover {
     background-color: #0a0;
 }
 
-.result {
+.result, .links {
     margin-top: 20px;
 }
