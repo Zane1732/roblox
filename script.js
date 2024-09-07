@@ -5,7 +5,7 @@ document.getElementById('toolForm').addEventListener('submit', function(event) {
 });
 
 const PASSWORD = "robloxgenbyzane";
-const BASE_URL = "https://www.roblox.com/groups/";
+const API_URL = "https://api.roblox.com/groups/";
 const CLAIM_URL = "https://www.roblox.com/groups/{}/claim";
 const CHECK_INTERVAL = 300000; // 5 minutes interval
 const BATCH_SIZE = 100; // Process 100 groups per batch
@@ -28,7 +28,7 @@ async function startChecking() {
     linksDiv.innerHTML = ""; // Clear previous links
 
     while (true) {
-        let groupIds = getRandomGroupIds(numGroups);
+        let groupIds = await getGroupIdsFromAPI(numGroups);
         let batch = [];
 
         for (let i = 0; i < numGroups; i += BATCH_SIZE) {
@@ -41,10 +41,14 @@ async function startChecking() {
     }
 }
 
-function getRandomGroupIds(numIds) {
+async function getGroupIdsFromAPI(numIds) {
     let ids = [];
-    for (let i = 0; i < numIds; i++) {
-        ids.push(Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000);
+    try {
+        let response = await fetch(`${API_URL}?limit=${numIds}`);
+        let data = await response.json();
+        ids = data.map(group => group.id); // Adjust based on actual API response
+    } catch (error) {
+        console.error('Error fetching group IDs:', error);
     }
     return ids;
 }
@@ -90,4 +94,3 @@ function updateClaimableLinks() {
         linksDiv.innerHTML = "<p>No claimable groups found.</p>";
     }
 }
-
